@@ -168,15 +168,15 @@ LRESULT WINAPI WndProc(HWND handle, UINT message, WPARAM wparam, LPARAM lparam)
 
 bool network_init(Network* network, uint16 port)
 {
-    //*network = {};
+    // >NOTE: we cannot use network = {} because of Network.thread, thus we reset it manually
     network->listen_socket = INVALID_SOCKET;
     network->client_socket = INVALID_SOCKET;
     network->running = false;
     network->connected = false;
-    network->receive.read = 0;
-    network->receive.write = 0;
-    network->incoming.read = 0;
-    network->incoming.write = 0;
+    network->receive_buffer.read = 0;
+    network->receive_buffer.write = 0;
+    network->incoming_buffer.read = 0;
+    network->incoming_buffer.write = 0;
 
     SOCKET socket_handle = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (socket_handle == INVALID_SOCKET)
@@ -258,7 +258,7 @@ void network_start(Network* network)
     network->running = true;
     std::cout << "Waiting for JS application...\n";
 
-    network->thread = std::thread(network_thread2, network);
+    network->thread = std::thread(network_thread, network);
 }
 
 void network_stop(Network* network)
@@ -287,7 +287,7 @@ void network_stop(Network* network)
     }
 }
 
-void network_thread2(Network* network)
+void network_thread(Network* network)
 {
     SOCKET client = ::accept(network->listen_socket, nullptr, nullptr);
     if (client == INVALID_SOCKET)
@@ -305,14 +305,14 @@ void network_thread2(Network* network)
 
     std::cout << "JS application connected !\n";
 
-    char receive_data[4096];
+    char receive_data[NETWORK_MESSAGE_SIZE];
     while (network->running)
     {
         int bytes_received = ::recv(network->client_socket, receive_data, sizeof(receive_data), 0);
 
         if (bytes_received > 0)
         {
-            NetworkReceiveBuffer* buffer = &network->receive;
+            NetworkReceiveBuffer* buffer = &network->receive_buffer;
 
             // Append bytes to our persistent receive buffer
             //
@@ -348,8 +348,8 @@ void network_thread2(Network* network)
                         break;
                     }
 
-                    size++;
                     position = (position + 1) % NETWORK_RECEIVE_BUFFER_SIZE;
+                    size++;
                     if (size >= NETWORK_MESSAGE_SIZE)
                     {
                         std::cerr << "Network message too large\n";
@@ -374,7 +374,7 @@ void network_thread2(Network* network)
                     source = (source + 1) % NETWORK_RECEIVE_BUFFER_SIZE;
                 }
 
-                network_message_push(&network->incoming, message, size);
+                network_message_push(&network->incoming_buffer, message, size);
 
                 // Consume message + newline
                 buffer->read = (source + 1) % NETWORK_RECEIVE_BUFFER_SIZE;
@@ -412,7 +412,7 @@ void network_process(Network* network)
 {
     NetworkMessage message = {};
 
-    while (network_message_pop(&network->incoming, &message))
+    while (network_message_pop(&network->incoming_buffer, &message))
     {
         std::cout << "Main thread received:";
 
@@ -579,160 +579,9 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
 
 
 
-    //// Cleanup
-    //::closesocket(l);
-    //::WSACleanup();
-
-    //app.stop();
     network_stop(&network);
     ::WSACleanup();
 
 
     return 0;
 }
-
-
-
-/*
-void MessageQueue::push(const std::string& message)
-{
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_queue.push(message);
-}
-
-bool MessageQueue::try_pop(std::string& outMessage)
-{
-    std::lock_guard<std::mutex> lock(m_mutex);
-
-    if (m_queue.empty()) return false;
-
-    outMessage = m_queue.front();
-    m_queue.pop();
-
-    return true;
-}
-
-
-
-
-
-
-
-
-
-Application::Application(SOCKET socket)
-    : m_listen_socket(socket)
-    , m_client_socket(INVALID_SOCKET)
-    , m_running(true)
-{
-}
-
-
-void Application::start()
-{
-    std::cout << "Running !\n";
-    m_network_thread = std::thread(&Application::network_thread, this);
-}
-
-void Application::stop()
-{
-    m_running = false;
-
-    // Wake up accept()
-    if (m_listen_socket != INVALID_SOCKET)
-    {
-        ::shutdown(m_listen_socket, SD_BOTH);
-        ::closesocket(m_listen_socket);
-        m_listen_socket = INVALID_SOCKET;
-    }
-
-    // Wake up recv(), if JV has connected
-    if (m_client_socket != INVALID_SOCKET)
-    {
-        ::shutdown(m_client_socket, SD_BOTH);
-        ::closesocket(m_client_socket);
-        m_client_socket = INVALID_SOCKET;
-    }
-
-    if (m_network_thread.joinable())
-    {
-        m_network_thread.join();
-    }
-}
-
-
-void Application::network_thread()
-{
-    // Wait for JS to connect
-    //
-    m_client_socket = ::accept(m_listen_socket, nullptr, nullptr);
-    if (m_client_socket == INVALID_SOCKET)
-    {
-        std::cerr << "client_socket failed\n";
-        ::closesocket(m_listen_socket);
-        ::WSACleanup();
-        return;
-    }
-
-    std::cout << "JS application connected !\n";
-
-    char buffer[4096];
-    std::string receive_buffer;
-
-    while (m_running)
-    {
-        int bytes_received = ::recv(m_client_socket, buffer, sizeof(buffer), 0);
-        if (bytes_received > 0) // We receive data
-        {
-            std::cout << "Data received\n";
-            receive_buffer.append(buffer, bytes_received);
-            while (true)
-            {
-                size_t newline = receive_buffer.find('\n');
-                std::cout << "newline: " << newline << "\n";
-                if (newline == std::string::npos) break;
-
-                std::string message = receive_buffer.substr(0, newline);
-                std::cout << "message: " << message << "\n";
-                receive_buffer.erase(0, newline + 1);
-                m_messages.push(message);
-            }
-        }
-        else if (bytes_received == 0) // Remote side closed the connection
-        {
-            std::cout << "Connection closed by peer\n";
-            break;
-        }
-        else // recv failed
-        {
-            int error = WSAGetLastError();
-            if (m_running)
-            {
-                std::cout << "recv() failed: " << error << "\n";
-            }
-
-            break;
-        }
-    }
-
-    std::cout << "Network thread exiting\n";
-}
-
-
-void Application::process_messages()
-{
-    std::string message;
-
-    // IMPORTANT
-    // try_pop() does not block, so the main_loop() remains responsive if there is no network data!
-
-    while (m_messages.try_pop(message))
-    {
-        std::cout << "Main thread received: " << message << "\n";
-
-        utils::dex::parse_token_pairs(message);
-
-        // Update the application state here based on the message received
-    }
-}
-*/

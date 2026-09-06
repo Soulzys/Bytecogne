@@ -65,60 +65,17 @@ struct Network
     std::atomic<bool> connected;
     std::atomic<bool> running;
 
-    NetworkReceiveBuffer receive;
-    NetworkMessageBuffer incoming;
+    NetworkReceiveBuffer receive_buffer;
+    NetworkMessageBuffer incoming_buffer;
 
     std::thread thread;
 };
 
 
-bool network_message_push(NetworkMessageBuffer* buffer, const char* data, uint32 size);
-bool network_message_pop(NetworkMessageBuffer* buffer, NetworkMessage* out_message);
-bool network_init(Network* network, uint16 port);
-void network_start(Network* network);
-void network_stop(Network* network);
-void network_thread2(Network* network);
-void network_process(Network* network);
-
-
-
-
-/*class MessageQueue
-{
-public:
-
-    void push(const std::string& message);
-    bool try_pop(std::string& message);
-
-
-private:
-
-    std::mutex m_mutex;
-    std::queue<std::string> m_queue;
-};
-
-
-class Application
-{
-public:
-
-    Application(SOCKET socket);
-
-    void start();
-    void stop();
-    void process_messages();
-
-
-private:
-
-    void network_thread();
-
-
-private:
-
-    SOCKET m_listen_socket;
-    SOCKET m_client_socket;
-    std::atomic<bool> m_running;
-    MessageQueue m_messages;
-    std::thread m_network_thread;
-};*/
+bool network_message_push (NetworkMessageBuffer* buffer, const char* data, uint32 size);
+bool network_message_pop  (NetworkMessageBuffer* buffer, NetworkMessage* out_message);
+bool network_init         (Network* network, uint16 port);
+void network_start        (Network* network);
+void network_stop         (Network* network);
+void network_thread       (Network* network);
+void network_process      (Network* network);
