@@ -429,25 +429,22 @@ void network_process(Network* network)
 
 
 
-
-
-
-int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
+void wnd_create_window(HINSTANCE hinstance, Window* out_wnd)
 {
-    // Create Win32 window
-    //
-    WNDCLASSEXW wc = {};
-    wc.cbSize = sizeof(WNDCLASSEXW);
-    wc.style = CS_CLASSDC;
-    wc.lpfnWndProc = WndProc;
-    wc.hInstance = hinstance;
-    wc.lpszClassName = L"Cogne";
+    WNDCLASS wc   = {};
+    //wc.cbSize        = sizeof(WNDCLASS);
+    wc.style         = CS_CLASSDC;
+    wc.lpfnWndProc   = WndProc;
+    wc.hInstance     = hinstance;
+    wc.lpszClassName = "Cogne";
 
-    RegisterClassExW(&wc);
+    RegisterClass(&wc);
 
-    HWND handle = CreateWindowW
+    HWND handle = CreateWindowExA
     (
-        wc.lpszClassName, L"Cogne (feat Dear ImGui & DirectX 11",
+        0,
+        wc.lpszClassName, 
+        "Cogne (feat Dear ImGui & DirectX 11)",
         WS_OVERLAPPEDWINDOW,
         100, 100,
         1280, 720,
@@ -457,19 +454,31 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
         nullptr
     );
 
+    out_wnd->handle = handle;
+    out_wnd->name   = wc.lpszClassName;
+}
+
+
+int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
+{
+    // Create Win32 window
+    //
+    Window wnd = {};
+    wnd_create_window(hinstance, &wnd);
+
 
     // Create D3D11
     //
-    if (!create_device_D3D(handle))
+    if (!create_device_D3D(wnd.handle))
     {
         cleanup_device_D3D();
-        UnregisterClassW(wc.lpszClassName, hinstance);
+        UnregisterClass(wnd.name, hinstance);
 
         return 1;
     }
 
-    ShowWindow(handle, SW_SHOWDEFAULT);
-    UpdateWindow(handle);
+    ShowWindow(wnd.handle, SW_SHOWDEFAULT);
+    UpdateWindow(wnd.handle);
 
 
     // Initialize Dear ImGui
@@ -482,7 +491,7 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
 
     ImGui::StyleColorsDark();
     
-    ImGui_ImplWin32_Init(handle);
+    ImGui_ImplWin32_Init(wnd.handle);
     ImGui_ImplDX11_Init(g_device, g_device_context);
 
     // Initialize WinSock

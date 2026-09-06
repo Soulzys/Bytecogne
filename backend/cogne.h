@@ -79,3 +79,13 @@ void network_start        (Network* network);
 void network_stop         (Network* network);
 void network_thread       (Network* network);
 void network_process      (Network* network);
+
+
+
+
+struct Window
+{
+    HWND        handle;
+    const char* name;
+};
+void wnd_create_window(HINSTANCE hinstance, Window* out_wnd);
