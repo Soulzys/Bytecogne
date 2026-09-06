@@ -3,122 +3,14 @@
 #include "cogne.h"
 #include <thread>
 
-#include "windows.h"
-#include "d3d11.h"
-
-#include "imgui/imgui.h"
-#include "imgui/backends/imgui_impl_win32.h"
-#include "imgui/backends/imgui_impl_dx11.h"
 #include <cstring>
 
-#include "gui.h"
+#include "gui.cpp"
 
 
 
 
-// D3D11 state
-//
-static ID3D11Device*           g_device             = nullptr;
-static ID3D11DeviceContext*    g_device_context     = nullptr;
-static IDXGISwapChain*         g_swap_chain         = nullptr;
-static ID3D11RenderTargetView* g_render_target_view = nullptr;
 
-
-// Create / Destroy render target
-//
-void create_render_target()
-{
-    ID3D11Texture2D* back_buffer = nullptr;
-
-    g_swap_chain->GetBuffer(0, IID_PPV_ARGS(&back_buffer));
-    g_device->CreateRenderTargetView(back_buffer, nullptr, &g_render_target_view);
-    back_buffer->Release();
-}
-
-void destroy_render_target()
-{
-    if (g_render_target_view)
-    {
-        g_render_target_view->Release();
-        g_render_target_view = nullptr;
-    }
-}
-
-
-// D3D11 initialization
-//
-bool create_device_D3D(HWND handle)
-{
-    DXGI_SWAP_CHAIN_DESC swap_chain_desc = {};
-
-    swap_chain_desc.BufferCount = 2;
-    swap_chain_desc.BufferDesc.Width = 0;
-    swap_chain_desc.BufferDesc.Height = 0;
-    swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    swap_chain_desc.BufferDesc.RefreshRate.Numerator = 60;
-    swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
-
-    swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swap_chain_desc.OutputWindow = handle;
-    swap_chain_desc.SampleDesc.Count = 1;
-    swap_chain_desc.Windowed = TRUE;
-    swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-
-    D3D_FEATURE_LEVEL feature_level;
-    const D3D_FEATURE_LEVEL feature_levels[] =
-    {
-        D3D_FEATURE_LEVEL_11_0,
-        D3D_FEATURE_LEVEL_10_0,
-    };
-
-    HRESULT hr = D3D11CreateDeviceAndSwapChain
-    (
-        nullptr, 
-        D3D_DRIVER_TYPE_HARDWARE,
-        nullptr, 
-        0, 
-        feature_levels, 
-        ARRAYSIZE(feature_levels),
-        D3D11_SDK_VERSION,
-        &swap_chain_desc, 
-        &g_swap_chain, 
-        &g_device,
-        &feature_level,
-        &g_device_context
-    );
-
-    if (FAILED(hr))
-    {
-        return false;
-    }
-
-    create_render_target();
-
-    return true;
-}
-
-void cleanup_device_D3D()
-{
-    destroy_render_target();
-
-    if (g_swap_chain)
-    {
-        g_swap_chain->Release();
-        g_swap_chain = nullptr;
-    }
-
-    if (g_device_context)
-    {
-        g_device_context->Release();
-        g_device_context = nullptr;
-    }
-
-    if (g_device)
-    {
-        g_device->Release();
-        g_device = nullptr;
-    }
-}
 
 
 // Win32 window procedure
@@ -126,8 +18,17 @@ void cleanup_device_D3D()
 // Forward declare based on the instructions in imgui_impl_win32.cpp
 IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-LRESULT WINAPI WndProc(HWND handle, UINT message, WPARAM wparam, LPARAM lparam)
+LRESULT WINAPI main_window_callback(HWND handle, UINT message, WPARAM wparam, LPARAM lparam)
 {
+    // Setup our DearGUI ptr upon initializing the window so we can use it below
+    if (message == WM_NCCREATE)
+    {
+        CREATESTRUCT* cs = (CREATESTRUCT*)lparam;
+        gui::DearGUI* gui = (gui::DearGUI*)cs->lpCreateParams;
+        SetWindowLongPtr(handle, GWLP_USERDATA, (LONG_PTR)gui);
+    }
+
+
     if (ImGui_ImplWin32_WndProcHandler(handle, message, wparam, lparam))
     {
         return true;
@@ -137,11 +38,12 @@ LRESULT WINAPI WndProc(HWND handle, UINT message, WPARAM wparam, LPARAM lparam)
     {
         case WM_SIZE:
         {
-            if (g_device && wparam != SIZE_MINIMIZED)
+            gui::DearGUI* gui = (gui::DearGUI*)(GetWindowLongPtr(handle, GWLP_USERDATA));
+            if (gui && gui->device && wparam != SIZE_MINIMIZED)
             {
-                destroy_render_target();
-                g_swap_chain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
-                create_render_target();
+                gui::destroy_render_target(gui);
+                gui->swap_chain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+                gui::create_render_target(gui);
             }
 
             return 0;
@@ -429,12 +331,11 @@ void network_process(Network* network)
 
 
 
-void wnd_create_window(HINSTANCE hinstance, Window* out_wnd)
+void wnd::create_window(HINSTANCE hinstance, Window* out_wnd)
 {
-    WNDCLASS wc   = {};
-    //wc.cbSize        = sizeof(WNDCLASS);
+    WNDCLASS wc      = {};
     wc.style         = CS_CLASSDC;
-    wc.lpfnWndProc   = WndProc;
+    wc.lpfnWndProc   = main_window_callback;
     wc.hInstance     = hinstance;
     wc.lpszClassName = "Cogne";
 
@@ -463,15 +364,16 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
 {
     // Create Win32 window
     //
-    Window wnd = {};
-    wnd_create_window(hinstance, &wnd);
+    wnd::Window wnd = {};
+    wnd::create_window(hinstance, &wnd);
 
 
     // Create D3D11
     //
-    if (!create_device_D3D(wnd.handle))
+    gui::DearGUI gui = {};
+    if (!gui::create_device_D3D(&gui, wnd.handle))
     {
-        cleanup_device_D3D();
+        gui::cleanup_device_D3D(&gui);
         UnregisterClass(wnd.name, hinstance);
 
         return 1;
@@ -486,13 +388,13 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    ImGuiIO& io = ImGui::GetIO();
-    (void)io;
+    gui.io = &ImGui::GetIO();
+    (void)gui.io;
 
     ImGui::StyleColorsDark();
     
     ImGui_ImplWin32_Init(wnd.handle);
-    ImGui_ImplDX11_Init(g_device, g_device_context);
+    ImGui_ImplDX11_Init(gui.device, gui.context);
 
     // Initialize WinSock
     //
@@ -577,12 +479,12 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
             1.0f
         };
 
-        g_device_context->OMSetRenderTargets(1, &g_render_target_view, nullptr);
-        g_device_context->ClearRenderTargetView(g_render_target_view, clear_color);
+        gui.context->OMSetRenderTargets(1, &gui.render_target_view, nullptr);
+        gui.context->ClearRenderTargetView(gui.render_target_view, clear_color);
 
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
         
-        g_swap_chain->Present(1, 0);
+        gui.swap_chain->Present(1, 0);
     }
 
 

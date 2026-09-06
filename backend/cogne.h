@@ -22,6 +22,12 @@ typedef int32    bool32 ;
 
 #include "utils.cpp"
 
+#include "d3d11.h"
+
+#include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_win32.h"
+#include "imgui/backends/imgui_impl_dx11.h"
+
 
 
 
@@ -82,10 +88,12 @@ void network_process      (Network* network);
 
 
 
-
-struct Window
+namespace wnd
 {
-    HWND        handle;
-    const char* name;
-};
-void wnd_create_window(HINSTANCE hinstance, Window* out_wnd);
+    struct Window
+    {
+        HWND        handle;
+        const char* name;
+    };
+    void create_window(HINSTANCE hinstance, Window* out_wnd);
+}
