@@ -96,6 +96,18 @@ void gui::cleanup_device_D3D(DearGUI* gui)
     }
 }
 
+void gui::render(DearGUI* gui, const real32 clear_color[4])
+{
+    ImGui::Render();
+
+    gui->context->OMSetRenderTargets(1, &gui->render_target_view, nullptr);
+    gui->context->ClearRenderTargetView(gui->render_target_view, clear_color);
+
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+    gui->swap_chain->Present(1, 0);
+}
+
 void draw_ui(const AppState& state)
 {
 	

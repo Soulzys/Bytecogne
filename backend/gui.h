@@ -2,6 +2,11 @@
 
 #include "app.h"
 
+// Win32 window procedure
+//
+// Forward declare based on the instructions in imgui_impl_win32.cpp
+IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 namespace gui
 {
     struct DearGUI
@@ -18,6 +23,7 @@ namespace gui
     void cleanup_device_D3D(DearGUI* gui);
     void create_render_target(DearGUI* gui);
     void destroy_render_target(DearGUI* gui);
+    void render(DearGUI* gui, const real32 clear_color[4]);
 
     void draw_ui(const AppState& state);
 }

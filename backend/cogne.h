@@ -19,6 +19,8 @@ typedef int32    bool32 ;
 #include <mutex>
 #include <atomic>
 #include <iostream>
+#include <thread>
+#include <cstring>
 
 #include "utils.cpp"
 
@@ -27,64 +29,6 @@ typedef int32    bool32 ;
 #include "imgui/imgui.h"
 #include "imgui/backends/imgui_impl_win32.h"
 #include "imgui/backends/imgui_impl_dx11.h"
-
-
-
-
-
-
-
-
-constexpr uint32 NETWORK_RECEIVE_BUFFER_SIZE = 64 * 1024;
-constexpr uint32 NETWORK_MESSAGE_SIZE        = 4096;
-constexpr uint32 NETWORK_MESSAGE_CAPACITY    = 32;
-
-
-
-struct NetworkReceiveBuffer
-{
-    char data[NETWORK_RECEIVE_BUFFER_SIZE];
-    uint32 read;
-    uint32 write;
-};
-
-struct NetworkMessage
-{
-    char data[NETWORK_MESSAGE_SIZE];
-    uint32 size;
-};
-
-struct NetworkMessageBuffer
-{
-    NetworkMessage messages[NETWORK_MESSAGE_CAPACITY];
-    //NetworkMessage messages*;
-    uint32 read;
-    uint32 write;
-    std::mutex mutex;
-};
-
-struct Network
-{
-    SOCKET listen_socket;
-    SOCKET client_socket;
-
-    std::atomic<bool> connected;
-    std::atomic<bool> running;
-
-    NetworkReceiveBuffer receive_buffer;
-    NetworkMessageBuffer incoming_buffer;
-
-    std::thread thread;
-};
-
-
-bool network_message_push (NetworkMessageBuffer* buffer, const char* data, uint32 size);
-bool network_message_pop  (NetworkMessageBuffer* buffer, NetworkMessage* out_message);
-bool network_init         (Network* network, uint16 port);
-void network_start        (Network* network);
-void network_stop         (Network* network);
-void network_thread       (Network* network);
-void network_process      (Network* network);
 
 
 
