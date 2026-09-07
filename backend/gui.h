@@ -1,7 +1,5 @@
 #pragma once
 
-#include "app.h"
-
 // Win32 window procedure
 //
 // Forward declare based on the instructions in imgui_impl_win32.cpp
@@ -19,11 +17,11 @@ namespace gui
         ImGuiIO* io;
     };
 
-    bool create_device_D3D(DearGUI* gui, HWND handle);
-    void cleanup_device_D3D(DearGUI* gui);
-    void create_render_target(DearGUI* gui);
-    void destroy_render_target(DearGUI* gui);
-    void render(DearGUI* gui, const real32 clear_color[4]);
+    bool create_device_D3D     (DearGUI* gui, HWND handle);
+    void cleanup_device_D3D    (DearGUI* gui);
+    void create_render_target  (DearGUI* gui);
+    void destroy_render_target (DearGUI* gui);
+    void render                (DearGUI* gui, const real32 clear_color[4]);
 
-    void draw_ui(const AppState& state);
+    void draw_ui               (AppState* state);
 }

@@ -31,6 +31,10 @@ typedef int32    bool32 ;
 #include "imgui/backends/imgui_impl_dx11.h"
 
 
+namespace net
+{
+    struct Network;
+}
 
 namespace wnd
 {
@@ -41,3 +45,8 @@ namespace wnd
     };
     void create_window(HINSTANCE hinstance, Window* out_wnd);
 }
+
+struct AppState
+{
+    net::Network* network = nullptr;
+};

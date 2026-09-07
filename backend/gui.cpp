@@ -1,4 +1,5 @@
 #include "gui.h"
+#include "networking.h"
 
 // Create / Destroy render target
 //
@@ -108,7 +109,16 @@ void gui::render(DearGUI* gui, const real32 clear_color[4])
     gui->swap_chain->Present(1, 0);
 }
 
-void draw_ui(const AppState& state)
+void gui::draw_ui(AppState* state)
 {
-	
+    ImGui::Begin("Cogne");
+    ImGui::Text("Hello from Cogne!");
+    ImGui::TextColored(ImVec4(0.f, 255.f, 0.f, 1.f), state->network->connected ? "Connected" : "Not connected");
+    if (ImGui::Button("Test"))
+    {
+        std::cout << "Button pressed\n";
+        OutputDebugString("----------- WSH\n");
+    }
+
+    ImGui::End();
 }

@@ -1,5 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
 
+
 #include "cogne.h"
 #include "gui.cpp"
 #include "networking.cpp"
@@ -48,18 +49,6 @@ LRESULT WINAPI main_window_callback(HWND handle, UINT message, WPARAM wparam, LP
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 void wnd::create_window(HINSTANCE hinstance, Window* out_wnd)
 {
     WNDCLASS wc      = {};
@@ -87,6 +76,8 @@ void wnd::create_window(HINSTANCE hinstance, Window* out_wnd)
     out_wnd->handle = handle;
     out_wnd->name   = wc.lpszClassName;
 }
+
+
 
 
 int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
@@ -139,6 +130,10 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
     net::start(&network);
 
 
+    AppState app = {};
+    app.network = &network;
+
+
     bool running = true;
     while (running)
     {
@@ -174,16 +169,7 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
 
         // GUI
         //
-        ImGui::Begin("Cogne");
-        ImGui::Text("Hello from Cogne!");
-        ImGui::TextColored(ImVec4(0.f, 255.f, 0.f, 1.f), "Connected");
-        if (ImGui::Button("Test"))
-        {
-            std::cout << "Button pressed\n";
-            OutputDebugString("----------- WSH\n");
-        }
-
-        ImGui::End();
+        gui::draw_ui(&app);
 
 
         // Render

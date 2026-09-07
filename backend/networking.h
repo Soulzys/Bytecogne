@@ -9,33 +9,32 @@ namespace net
 {
     struct NetworkReceiveBuffer
     {
-        char data[NETWORK_RECEIVE_BUFFER_SIZE];
+        char   data[NETWORK_RECEIVE_BUFFER_SIZE];
         uint32 read;
         uint32 write;
     };
 
     struct NetworkMessage
     {
-        char data[NETWORK_MESSAGE_SIZE];
+        char   data[NETWORK_MESSAGE_SIZE];
         uint32 size;
     };
 
     struct NetworkMessageBuffer
     {
         NetworkMessage messages[NETWORK_MESSAGE_CAPACITY];
-        //NetworkMessage messages*;
-        uint32 read;
-        uint32 write;
-        std::mutex mutex;
+        uint32         read;
+        uint32         write;
+        std::mutex     mutex;
     };
 
     struct Network
     {
-        SOCKET listen_socket;
-        SOCKET client_socket;
+        SOCKET               listen_socket;
+        SOCKET               client_socket;
 
-        std::atomic<bool> connected;
-        std::atomic<bool> running;
+        std::atomic<bool>    connected;
+        std::atomic<bool>    running;
 
         NetworkReceiveBuffer receive_buffer;
         NetworkMessageBuffer incoming_buffer;
