@@ -6,7 +6,7 @@ bool net::init(Network* network, uint16 port)
     WSAData wsa_data;
     if (::WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0)
     {
-        std::cerr << "WSAStartup failed\n";
+        std::cerr << "WSAStartup failed\n" << std::flush;
         return 1;
     }
 
@@ -23,7 +23,7 @@ bool net::init(Network* network, uint16 port)
     SOCKET socket_handle = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (socket_handle == INVALID_SOCKET)
     {
-        std::cerr << "socket() failed\n";
+        std::cerr << "socket() failed\n" << std::flush;
         return false;
     }
 
@@ -35,14 +35,14 @@ bool net::init(Network* network, uint16 port)
 
     if (::bind(socket_handle, reinterpret_cast<sockaddr*>(&address), sizeof(address)) == SOCKET_ERROR)
     {
-        std::cerr << "bind() failed\n";
+        std::cerr << "bind() failed\n" << std::flush;
         ::closesocket(socket_handle);
         return false;
     }
 
     if (::listen(socket_handle, SOMAXCONN) == SOCKET_ERROR)
     {
-        std::cerr << "listen() failed\n";
+        std::cerr << "listen() failed\n" << std::flush;
         ::closesocket(socket_handle);
         return false;
     }
@@ -55,7 +55,7 @@ bool net::message_push(NetworkMessageBuffer* buffer, const char* data, uint32 si
 {
     if (size > NETWORK_MESSAGE_SIZE)
     {
-        std::cerr << "Size is too large\n";
+        std::cerr << "Size is too large\n" << std::flush;
         return false;
     }
 
@@ -66,7 +66,7 @@ bool net::message_push(NetworkMessageBuffer* buffer, const char* data, uint32 si
     // Buffer is full
     if (next_write == buffer->read)
     {
-        std::cerr << "Buffer is full\n";
+        std::cerr << "Buffer is full\n" << std::flush;
         return false;
     }
 
@@ -98,7 +98,7 @@ bool net::message_pop(NetworkMessageBuffer* buffer, NetworkMessage* out_message)
 void net::start(Network* network)
 {
     network->running = true;
-    std::cout << "Waiting for JS application...\n";
+    std::cout << "Waiting for JS application...\n" << std::flush;
 
     network->thread = std::thread(thread, network);
 }
@@ -136,7 +136,7 @@ void net::thread(Network* network)
     {
         if (network->running)
         {
-            std::cerr << "accept() failed\n";
+            std::cerr << "accept() failed\n" << std::flush;
         }
 
         return;
@@ -145,7 +145,7 @@ void net::thread(Network* network)
     network->client_socket = client;
     network->connected = true;
 
-    std::cout << "JS application connected !\n";
+    std::cout << "JS application connected !\n" << std::flush;
 
     char receive_data[NETWORK_MESSAGE_SIZE];
     while (network->running)
@@ -165,7 +165,7 @@ void net::thread(Network* network)
                 // Receive buffer is full
                 if (next_write == buffer->read)
                 {
-                    std::cerr << "Network receive buffer is full\n";
+                    std::cerr << "Network receive buffer is full\n" << std::flush;
                     break;
                 }
 
@@ -194,7 +194,7 @@ void net::thread(Network* network)
                     size++;
                     if (size >= NETWORK_MESSAGE_SIZE)
                     {
-                        std::cerr << "Network message too large\n";
+                        std::cerr << "Network message too large\n" << std::flush;
                         break;
                     }
                 }
@@ -225,7 +225,7 @@ void net::thread(Network* network)
         // Connection closed
         else if (bytes_received == 0)
         {
-            std::cout << "Connection closed by peer\n";
+            std::cout << "Connection closed by peer\n" << std::flush;
             break;
         }
         // recv() failed
@@ -234,7 +234,7 @@ void net::thread(Network* network)
             int error = WSAGetLastError();
             if (network->running)
             {
-                std::cerr << "recv() failed: " << error << "\n";
+                std::cerr << "recv() failed: " << error << "\n" << std::flush;
             }
 
             break;
@@ -247,7 +247,7 @@ void net::thread(Network* network)
     ::closesocket(network->client_socket);
     network->client_socket = INVALID_SOCKET;
 
-    std::cout << "Network thread exiting\n";
+    std::cout << "Network thread exiting\n" << std::flush;
 }
 
 void net::process(Network* network)
@@ -261,8 +261,7 @@ void net::process(Network* network)
         // The message isn't null terminated
         std::cout.write(message.data, message.size);
 
-        std::cout << "\n";
-
+        std::cout << "\n" << std::flush;
 
 
         // Convert network data into application data here.
