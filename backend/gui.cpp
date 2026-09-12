@@ -1,5 +1,12 @@
 #include "gui.h"
 #include "networking.h"
+#include "cogne.h"
+
+// >NOTE: these includes are only here to trigger intellisense for the dear imgui symbol recognition. They will need
+//        to be eventually removed. 
+#include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_win32.h"
+#include "imgui/backends/imgui_impl_dx11.h"
 
 // Create / Destroy render target
 //
@@ -111,14 +118,52 @@ void gui::render(DearGUI* gui, const real32 clear_color[4])
 
 void gui::draw_ui(AppState* state)
 {
-    ImGui::Begin("Cogne");
-    ImGui::Text("Hello from Cogne!");
-    ImGui::TextColored(ImVec4(0.f, 255.f, 0.f, 1.f), state->network->connected ? "Connected" : "Not connected");
-    if (ImGui::Button("Test"))
+    draw_main_window(state);
+}
+
+
+void gui::draw_main_window(AppState* state)
+{
+    bool connected = state->network->connected;
+
+    ImGui::Begin("MainWindow");
+
+    // Status bar
+    //
+    ImGui::BeginChild("StatusBar", ImVec2(0, 40), true);
+    ImVec4 connection_status_color = connected ? ImVec4(0.f, 255.f, 0.f, 1.f) : ImVec4(255.f, 0.f, 0.f, 1.f);
+    ImGui::TextColored(connection_status_color, connected ? "Connected" : "Not connected");
+    ImGui::EndChild();
+
+    // Left panel
+    // 
+    ImGui::BeginChild("LeftPanel", ImVec2(250, 0), true);
+    ImGui::Text("Left Panel");
+    ImGui::EndChild();
+    ImGui::SameLine();
+    //RightPanel
+    //
+    ImGui::BeginChild("RightPanel", ImVec2(0, 0), true);
+    ImGui::Text("Right Panel");
+    const char* str_disconnected = "Connect";
+    const char* str_connnected = "Disconnect";
+    if (ImGui::Button(connected ? str_connnected : str_disconnected))
     {
-        std::cout << "Button pressed\n";
-        OutputDebugString("----------- WSH\n");
+        if (connected)
+        {
+            net::stop(state->network);
+            wnd::terminate_process();
+        }
+        else
+        {
+            if (!wnd::create_process())
+            {
+                std::cerr << "Could not start node process !\n";
+            }
+        }
     }
+    ImGui::EndChild();
+
 
     ImGui::End();
 }

@@ -24,4 +24,5 @@ namespace gui
     void render                (DearGUI* gui, const real32 clear_color[4]);
 
     void draw_ui               (AppState* state);
+    void draw_main_window      (AppState* state);
 }

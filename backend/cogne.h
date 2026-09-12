@@ -1,5 +1,20 @@
 #pragma once
 
+
+
+/*
+    TODO
+
+        - Make the platform layer distinct from the application layer, Casey style
+        - Implement connect/reconnect loop
+        - Create struct to represent a simple API's endpoint message
+        - Add VERY BASIC UI to test getter user-specified data
+        - Use Innosetup to pack and release the app and test it on second laptop
+        - Send to Lucas for further testing
+        - Grow it
+        - $$$    
+*/
+
 #include <stdint.h>
 
 typedef int8_t   int8   ;
@@ -42,9 +57,10 @@ namespace wnd
     {
         HWND        handle;
         const char* name;
+        HANDLE      node_process;
     };
     void create_window(HINSTANCE hinstance, Window* out_wnd, gui::DearGUI* gui);
-    void create_process();
+    bool create_process();
 }
 
 struct AppState

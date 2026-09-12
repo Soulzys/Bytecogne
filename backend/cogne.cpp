@@ -82,31 +82,30 @@ void wnd::create_window(HINSTANCE hinstance, Window* out_wnd, gui::DearGUI* gui)
     out_wnd->name   = wc.lpszClassName;
 }
 
-void wnd::create_process()
+bool wnd::create_process(wnd::Window* window)
 {
     STARTUPINFOA si = {};
     PROCESS_INFORMATION pi = {};
     si.cb = sizeof(si);
     char command[] = "node C:\\Bytecogne\\src\\index.js";
 
-    BOOL success = CreateProcessA
+    BOOL status = CreateProcessA
     (
         nullptr,
         command, 
         nullptr,
         nullptr,
         false,
-        0, 
+        CREATE_NO_WINDOW, 
         nullptr,
         nullptr,
         &si,
         &pi
     );
 
-    if (!success)
-    {
-        std::cerr << "Failed to start Node.js. Error: " << GetLastError() << "\n";
-    }
+    window->node_process = pi.hProcess;
+
+    return status;
 }
 
 
