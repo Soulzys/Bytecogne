@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdint.h>
 
 typedef int8_t   int8   ;
@@ -22,19 +24,17 @@ typedef int32    bool32 ;
 #include <thread>
 #include <cstring>
 
-#include "utils.cpp"
-
-#include "d3d11.h"
-
-#include "imgui/imgui.h"
-#include "imgui/backends/imgui_impl_win32.h"
-#include "imgui/backends/imgui_impl_dx11.h"
-
 
 namespace net
 {
     struct Network;
 }
+
+namespace gui
+{
+    struct DearGUI;
+}
+
 
 namespace wnd
 {
@@ -43,7 +43,8 @@ namespace wnd
         HWND        handle;
         const char* name;
     };
-    void create_window(HINSTANCE hinstance, Window* out_wnd);
+    void create_window(HINSTANCE hinstance, Window* out_wnd, gui::DearGUI* gui);
+    void create_process();
 }
 
 struct AppState

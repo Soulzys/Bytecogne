@@ -1,7 +1,12 @@
 #define WIN32_LEAN_AND_MEAN
 
+#include "d3d11.h"
+#include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_win32.h"
+#include "imgui/backends/imgui_impl_dx11.h"
 
 #include "cogne.h"
+#include "utils.cpp"
 #include "gui.cpp"
 #include "networking.cpp"
 
@@ -49,7 +54,7 @@ LRESULT WINAPI main_window_callback(HWND handle, UINT message, WPARAM wparam, LP
 }
 
 
-void wnd::create_window(HINSTANCE hinstance, Window* out_wnd)
+void wnd::create_window(HINSTANCE hinstance, Window* out_wnd, gui::DearGUI* gui)
 {
     WNDCLASS wc      = {};
     wc.style         = CS_CLASSDC;
@@ -70,11 +75,38 @@ void wnd::create_window(HINSTANCE hinstance, Window* out_wnd)
         nullptr,
         nullptr,
         hinstance,
-        nullptr
+        gui
     );
 
     out_wnd->handle = handle;
     out_wnd->name   = wc.lpszClassName;
+}
+
+void wnd::create_process()
+{
+    STARTUPINFOA si = {};
+    PROCESS_INFORMATION pi = {};
+    si.cb = sizeof(si);
+    char command[] = "node C:\\Bytecogne\\src\\index.js";
+
+    BOOL success = CreateProcessA
+    (
+        nullptr,
+        command, 
+        nullptr,
+        nullptr,
+        false,
+        0, 
+        nullptr,
+        nullptr,
+        &si,
+        &pi
+    );
+
+    if (!success)
+    {
+        std::cerr << "Failed to start Node.js. Error: " << GetLastError() << "\n";
+    }
 }
 
 
@@ -82,15 +114,16 @@ void wnd::create_window(HINSTANCE hinstance, Window* out_wnd)
 
 int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
 {
+    gui::DearGUI gui = {};
+
     // Create Win32 window
     //
     wnd::Window wnd = {};
-    wnd::create_window(hinstance, &wnd);
+    wnd::create_window(hinstance, &wnd, &gui);
 
 
     // Create D3D11
     //
-    gui::DearGUI gui = {};
     if (!gui::create_device_D3D(&gui, wnd.handle))
     {
         gui::cleanup_device_D3D(&gui);
