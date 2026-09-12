@@ -30,24 +30,24 @@ LRESULT WINAPI main_window_callback(HWND handle, UINT message, WPARAM wparam, LP
 
     switch (message)
     {
-        case WM_SIZE:
+    case WM_SIZE:
+    {
+        gui::DearGUI* gui = (gui::DearGUI*)(GetWindowLongPtr(handle, GWLP_USERDATA));
+        if (gui && gui->device && wparam != SIZE_MINIMIZED)
         {
-            gui::DearGUI* gui = (gui::DearGUI*)(GetWindowLongPtr(handle, GWLP_USERDATA));
-            if (gui && gui->device && wparam != SIZE_MINIMIZED)
-            {
-                gui::destroy_render_target(gui);
-                gui->swap_chain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
-                gui::create_render_target(gui);
-            }
-
-            return 0;
+            gui::destroy_render_target(gui);
+            gui->swap_chain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+            gui::create_render_target(gui);
         }
 
-        case WM_DESTROY:
-        {
-            PostQuitMessage(0);
-            return 0;
-        }
+        return 0;
+    }
+
+    case WM_DESTROY:
+    {
+        PostQuitMessage(0);
+        return 0;
+    }
     }
 
     return DefWindowProc(handle, message, wparam, lparam);
@@ -56,10 +56,10 @@ LRESULT WINAPI main_window_callback(HWND handle, UINT message, WPARAM wparam, LP
 
 void wnd::create_window(HINSTANCE hinstance, Window* out_wnd, gui::DearGUI* gui)
 {
-    WNDCLASS wc      = {};
-    wc.style         = CS_CLASSDC;
-    wc.lpfnWndProc   = main_window_callback;
-    wc.hInstance     = hinstance;
+    WNDCLASS wc = {};
+    wc.style = CS_CLASSDC;
+    wc.lpfnWndProc = main_window_callback;
+    wc.hInstance = hinstance;
     wc.lpszClassName = "Cogne";
 
     RegisterClass(&wc);
@@ -67,7 +67,7 @@ void wnd::create_window(HINSTANCE hinstance, Window* out_wnd, gui::DearGUI* gui)
     HWND handle = CreateWindowExA
     (
         0,
-        wc.lpszClassName, 
+        wc.lpszClassName,
         "Cogne (feat Dear ImGui & DirectX 11)",
         WS_OVERLAPPEDWINDOW,
         100, 100,
@@ -79,10 +79,10 @@ void wnd::create_window(HINSTANCE hinstance, Window* out_wnd, gui::DearGUI* gui)
     );
 
     out_wnd->handle = handle;
-    out_wnd->name   = wc.lpszClassName;
+    out_wnd->name = wc.lpszClassName;
 }
 
-bool wnd::create_process(wnd::Window* window)
+bool wnd::process_start_node(wnd::Window* window)
 {
     STARTUPINFOA si = {};
     PROCESS_INFORMATION pi = {};
@@ -92,24 +92,47 @@ bool wnd::create_process(wnd::Window* window)
     BOOL status = CreateProcessA
     (
         nullptr,
-        command, 
+        command,
         nullptr,
         nullptr,
         false,
-        CREATE_NO_WINDOW, 
+        0,//CREATE_NO_WINDOW,
         nullptr,
         nullptr,
         &si,
         &pi
     );
 
-    window->node_process = pi.hProcess;
+    //window->start_node_process = pi.hProcess;
 
     return status;
 }
 
+bool wnd::process_stop_node(wnd::Window* window)
+{
+    STARTUPINFOA si = {};
+    PROCESS_INFORMATION pi = {};
+    si.cb = sizeof(si);
+    char command[] = "node C:\\Bytecogne\\src\\index.js --shutdown";
 
+    BOOL status = CreateProcessA
+    (
+        nullptr,
+        command,
+        nullptr,
+        nullptr,
+        false,
+        CREATE_NO_WINDOW,
+        nullptr,
+        nullptr,
+        &si,
+        &pi
+    );
 
+    //window->start_node_process = pi.hProcess;
+
+    return status;
+}
 
 int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
 {
@@ -144,26 +167,20 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
     (void)gui.io;
 
     ImGui::StyleColorsDark();
-    
+
     ImGui_ImplWin32_Init(wnd.handle);
     ImGui_ImplDX11_Init(gui.device, gui.context);
 
-    
+
     //
     // NETWORK CODE
     //
     net::Network network = {};
-    if (!net::init(&network, 5000))
-    {
-        ::WSACleanup();
-        return 1;
-    }
-
-    net::start(&network);
 
 
     AppState app = {};
     app.network = &network;
+    app.window = &wnd;
 
 
     bool running = true;
@@ -183,9 +200,11 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
             }
         }
 
-        if (!running) 
+        if (!running)
             break;
 
+
+        
 
         // Network messages
         //

@@ -12,22 +12,22 @@
         - Use Innosetup to pack and release the app and test it on second laptop
         - Send to Lucas for further testing
         - Grow it
-        - $$$    
+        - $$$
 */
 
 #include <stdint.h>
 
-typedef int8_t   int8   ;
-typedef int16_t  int16  ;
-typedef int32_t  int32  ;
-typedef int64_t  int64  ;
-typedef uint8_t  uint8  ;
-typedef uint16_t uint16 ;
-typedef uint32_t uint32 ;
-typedef uint64_t uint64 ;
-typedef float    real32 ;
-typedef double   real64 ;
-typedef int32    bool32 ;
+typedef int8_t   int8;
+typedef int16_t  int16;
+typedef int32_t  int32;
+typedef int64_t  int64;
+typedef uint8_t  uint8;
+typedef uint16_t uint16;
+typedef uint32_t uint32;
+typedef uint64_t uint64;
+typedef float    real32;
+typedef double   real64;
+typedef int32    bool32;
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -57,13 +57,16 @@ namespace wnd
     {
         HWND        handle;
         const char* name;
-        HANDLE      node_process;
+        //HANDLE      start_node_process;
+        //HANDLE      close_node_process;
     };
     void create_window(HINSTANCE hinstance, Window* out_wnd, gui::DearGUI* gui);
-    bool create_process();
+    bool process_start_node(Window* window);
+    bool process_stop_node(Window* window);
 }
 
 struct AppState
 {
     net::Network* network = nullptr;
+    wnd::Window* window = nullptr;
 };

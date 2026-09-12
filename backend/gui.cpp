@@ -152,11 +152,18 @@ void gui::draw_main_window(AppState* state)
         if (connected)
         {
             net::stop(state->network);
-            wnd::terminate_process();
+            wnd::process_stop_node(state->window);
         }
         else
-        {
-            if (!wnd::create_process())
+        {            
+            if (!net::init(state->network, 5000))
+            {
+                ::WSACleanup();
+                //return;
+            }
+
+            net::start(state->network);
+            if (!wnd::process_start_node(state->window))
             {
                 std::cerr << "Could not start node process !\n";
             }
