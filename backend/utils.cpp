@@ -20,7 +20,15 @@ utils::dex::parse_token_pairs(const char* msg, uint32 size)
 {
 	TokenPairs result = {};
 
-	
+	strv::StringView strv = strv::create(msg);
+	while (strv.size > 0)
+	{
+		strv::StringView vfield = strv::split(&strv, ',');
+		//printf(SV_FMT"\n", ((vfield).(int)(size), (vfield).data));
+		//printf(SV_FMT"\n", (int)vfield.size, vfield.data);
+		printf(SV_FMT"\n", SV_ARG(vfield));
+		//std::count << vfield.data << "\n" << std::flush;
+	}
 
 
 	return result;
@@ -73,4 +81,56 @@ uint32 utils::find_char(const char* str, uint32 size, char c)
 	}
 
 	return INVALID_UI32;
+}
+
+
+
+utils::strv::StringView utils::strv::create(const char* str)
+{
+	StringView strv = {};
+	strv.data       = str;
+	strv.size       = strlen(str);
+
+	return strv;
+}
+
+void utils::strv::chop_left(strv::StringView* strv, size_t amount)
+{
+	if (amount > strv->size) amount = strv->size;
+
+	strv->data += amount;
+	strv->size -= amount;
+}
+
+void utils::strv::chop_right(strv::StringView* strv, size_t amount)
+{
+	if (amount > strv->size) amount = strv->size;
+
+	strv->size -= amount;
+}
+
+utils::strv::StringView utils::strv::split(utils::strv::StringView* strv, char delim)
+{
+	size_t count = 0;
+	while (count < strv->size && strv->data[count] != delim)
+	{
+		count++;
+	}
+
+	// Found it
+	if (count < strv->size)
+	{
+		StringView result = {};
+		result.data       = strv->data;
+		result.size       = count;
+
+		chop_left(strv, count + 1);
+
+		return result;
+	}
+
+	StringView result = *strv;
+	chop_left(strv, strv->size);
+	
+	return result;
 }

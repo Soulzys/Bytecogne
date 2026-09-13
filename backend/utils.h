@@ -1,3 +1,9 @@
+#pragma once
+
+// Format to use StringView with prinf
+#define SV_FMT "%.*s"
+#define SV_ARG(s) (int)(s).size, (s).data
+
 namespace utils
 {
 	namespace dex
@@ -17,6 +23,22 @@ namespace utils
 
 		TokenPairs parse_token_pairs(const char* msg, uint32 size);
 		uint32     retrieve_message_code(const char* msg, uint32 size);// , void* outData, EndPoint& outDataType);
+	}
+
+
+	namespace strv
+	{
+		struct StringView
+		{
+			const char* data;
+			size_t size;
+		};
+
+		StringView create(const char* str);
+		void chop_left(StringView* strv, size_t amount);
+		void chop_right(StringView* strv, size_t amount);
+		// Returns the chopped part
+		StringView split(StringView* strv, char delim);
 	}
 
 
