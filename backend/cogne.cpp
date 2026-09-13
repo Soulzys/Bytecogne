@@ -96,7 +96,7 @@ bool wnd::process_start_node(wnd::Window* window)
         nullptr,
         nullptr,
         false,
-        0,//CREATE_NO_WINDOW,
+        CREATE_NO_WINDOW,
         nullptr,
         nullptr,
         &si,

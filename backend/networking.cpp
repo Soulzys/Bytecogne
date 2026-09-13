@@ -265,5 +265,13 @@ void net::process(Network* network)
 
 
         // Convert network data into application data here.
+        uint32 code = utils::dex::retrieve_message_code(message.data, message.size);
+        switch (code)
+        {
+            case utils::dex::EndPoint::TOKEN_PAIRS:
+            {
+                utils::dex::TokenPairs data = utils::dex::parse_token_pairs(message.data, message.size);
+            } break;
+        }
     }
 }

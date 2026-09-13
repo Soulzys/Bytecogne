@@ -6,7 +6,6 @@
     TODO
 
         - Make the platform layer distinct from the application layer, Casey style
-        - Implement connect/reconnect loop
         - Create struct to represent a simple API's endpoint message
         - Add VERY BASIC UI to test getter user-specified data
         - Use Innosetup to pack and release the app and test it on second laptop
@@ -50,6 +49,14 @@ namespace gui
     struct DearGUI;
 }
 
+namespace utils
+{
+    namespace dex
+    {
+        struct TokenPairs;
+    }
+}
+
 
 namespace wnd
 {
@@ -69,4 +76,6 @@ struct AppState
 {
     net::Network* network = nullptr;
     wnd::Window* window = nullptr;
+
+    utils::dex::TokenPairs* tokenPairs;
 };

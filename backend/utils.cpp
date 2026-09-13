@@ -3,30 +3,20 @@
 #define INVALID_UI32 UINT32_MAX
 #define INVALID_UI8 UINT8_MAX
 
-bool
-utils::dex::parse_data(const std::string& msg, void* outData, EndPoint& outDataType)
+uint32
+utils::dex::retrieve_message_code(const char* msg, uint32 size)
 {
-	size_t start = msg.find(':');
-	size_t end   = msg.find(',');
-	uint32 type  = str_to_ui32(msg.c_str(), start + 1, end);
-	
-	// >NOTE: could probably remove INVALID_UI32 check, but it may be useful for debugging
-	if (type == INVALID_UI32)               return false;
-	if (type > (uint32)utils::dex::EndPoint::COUNT) return false;
+	uint32 start = find_char(msg, size, ':'); // This should be at a constant position specified by the format, so no need to look for it (in theory)
+	uint32 end   = find_char(msg, size, ','); 
 
-	switch (type)
-	{
-		case utils::dex::EndPoint::TOKEN_PAIRS:
-		{
-			
-		} break;
-	}
+	if (start == INVALID_UI32) return false;
+	if (end   == INVALID_UI32) return false;
 
-	return true;
+	return str_to_ui32(msg, start + 1, end);
 }
 
 utils::dex::TokenPairs 
-utils::dex::parse_token_pairs(const std::string& msg)
+utils::dex::parse_token_pairs(const char* msg, uint32 size)
 {
 	TokenPairs result = {};
 
@@ -37,7 +27,7 @@ utils::dex::parse_token_pairs(const std::string& msg)
 }
 
 
-uint32 utils::str_to_ui32(const char* str, size_t start, size_t end)
+uint32 utils::str_to_ui32(const char* str, uint32 start, uint32 end)
 {
 	if (start >= end) return INVALID_UI32;
 
@@ -70,4 +60,17 @@ bool utils::is_digit(const char c)
 {
 	int val = (int)c;
 	return (val >= 48 && val <= 57);
+}
+
+uint32 utils::find_char(const char* str, uint32 size, char c)
+{
+	for (uint32 i = 0; i < size; i++)
+	{
+		if (str[i] == c)
+		{
+			return i;
+		}
+	}
+
+	return INVALID_UI32;
 }
