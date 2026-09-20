@@ -28,6 +28,10 @@ typedef float    real32;
 typedef double   real64;
 typedef int32    bool32;
 
+typedef uint32   flag_type;
+typedef uint8    enum_type;
+constexpr uint8 FLAGS_COUNT = 32;
+
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <string>
@@ -57,6 +61,8 @@ namespace utils
     }
 }
 
+struct Dex;
+
 
 namespace wnd
 {
@@ -77,5 +83,7 @@ struct AppState
     net::Network* network = nullptr;
     wnd::Window* window = nullptr;
 
-    utils::dex::TokenPairs* tokenPairs;
+    utils::dex::TokenPairs* tokenPairs = nullptr;
+
+    Dex* dex = nullptr;
 };

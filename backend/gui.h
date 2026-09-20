@@ -25,4 +25,5 @@ namespace gui
 
     void draw_ui               (AppState* state);
     void draw_main_window      (AppState* state);
+    void draw_dex_token_pairs_popup();
 }

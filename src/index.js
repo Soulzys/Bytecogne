@@ -20,7 +20,7 @@ const test_object = {
 
 // _c stands for "code", i.e. the type of the data we're sending
 //const real_test_object = {_c: DATA.DEX.TOKEN_PAIRS, ...test_object};
-const real_test_object = {_c: 77, ...test_object};
+const real_test_object = {_c: DATA.DEX.TOKEN_PAIRS, ...test_object};
 console.log("test_object: ", real_test_object);
 
 
@@ -41,7 +41,7 @@ socket.on("connect", () =>
     connected = true;
     console.log("Connected to C++");
 
-    run_app();
+    //run_app();
 });
 
 socket.on("close", () =>
@@ -57,6 +57,11 @@ socket.on("error", err =>
 });
 
 
+const app_args = process.argv.slice(2); // The first 2 args are useless
+if (app_args[0] == "--shutdown")
+{
+    process.exit(0);
+}
 
 function run_app()
 {

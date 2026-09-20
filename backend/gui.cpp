@@ -1,6 +1,7 @@
 #include "gui.h"
 #include "networking.h"
 #include "cogne.h"
+#include "dex.h"
 
 // >NOTE: these includes are only here to trigger intellisense for the dear imgui symbol recognition. They will need
 //        to be eventually removed. 
@@ -169,8 +170,43 @@ void gui::draw_main_window(AppState* state)
             }
         }
     }
+
+    if (ImGui::Button("Paid Order"))
+    {
+        ImGui::OpenPopup("Dex - Paid Order");
+        //ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        //ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    }
+
+    //draw_dex_token_pairs_popup();
+    dex_paid_order_popup(state->dex->paid_order.internal_properties);
+
+    if (ImGui::Button("Test"))
+    {
+        std::cout << stringify(state->dex->paid_order) << std::flush;
+    }
+
     ImGui::EndChild();
 
 
     ImGui::End();
+}
+
+void gui::draw_dex_token_pairs_popup()
+{
+    if (ImGui::BeginPopupModal("Dex - TokenPairs", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("Choose the data you want to retrieve");
+        ImGui::Separator();
+
+        static bool t = false;
+        ImGui::Checkbox("test_checkbox", &t);
+
+        if (ImGui::Button("Done"))
+        {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
 }

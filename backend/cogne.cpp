@@ -9,6 +9,7 @@
 #include "utils.cpp"
 #include "gui.cpp"
 #include "networking.cpp"
+#include "dex.cpp"
 
 
 
@@ -96,7 +97,8 @@ bool wnd::process_start_node(wnd::Window* window)
         nullptr,
         nullptr,
         false,
-        CREATE_NO_WINDOW,
+        //CREATE_NO_WINDOW,
+        0, //WS_OVERLAPPEDWINDOW,
         nullptr,
         nullptr,
         &si,
@@ -178,9 +180,12 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
     net::Network network = {};
 
 
+    Dex dex = {};
+
     AppState app = {};
     app.network = &network;
     app.window = &wnd;
+    app.dex = &dex;
 
 
     bool running = true;
