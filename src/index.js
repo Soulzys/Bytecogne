@@ -57,6 +57,26 @@ socket.on("error", err =>
 });
 
 
+let buffer = '';
+socket.on('data', (data) => {
+    buffer += data.toString();
+    let newline_index = -1;
+
+    while ((newline_index = buffer.indexOf('\n')) !== -1)
+    {
+        const message = buffer.slice(0, newline_index);
+        buffer = buffer.slice(newline_index + 1);
+        console.log("C++ requested: ", message);
+        console.log("newline_index: ", newline_index);
+
+        //if (message == "TOKEN_PAIRS")
+        //{}
+
+    }
+    run_app();
+});
+
+
 const app_args = process.argv.slice(2); // The first 2 args are useless
 if (app_args[0] == "--shutdown")
 {

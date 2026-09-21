@@ -147,9 +147,21 @@ void net::thread(Network* network)
 
     std::cout << "JS application connected !\n" << std::flush;
 
+    const char* request = "TOKEN_PAIRS\n";
+    int bytes_sent = ::send(network->client_socket, request, (int)strlen(request), 0);
+    if (bytes_sent == SOCKET_ERROR)
+    {
+        std::cerr << "send() failed: " << WSAGetLastError() << "\n" << std::flush;
+        ::closesocket(network->client_socket);
+        network->client_socket = INVALID_SOCKET;
+        network->connected = false;
+        return;
+    }
+
     char receive_data[NETWORK_MESSAGE_SIZE];
     while (network->running)
     {
+        // ::recv makes the thread wait until Node sends something.
         int bytes_received = ::recv(network->client_socket, receive_data, sizeof(receive_data), 0);
 
         if (bytes_received > 0)

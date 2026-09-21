@@ -31,24 +31,24 @@ LRESULT WINAPI main_window_callback(HWND handle, UINT message, WPARAM wparam, LP
 
     switch (message)
     {
-    case WM_SIZE:
-    {
-        gui::DearGUI* gui = (gui::DearGUI*)(GetWindowLongPtr(handle, GWLP_USERDATA));
-        if (gui && gui->device && wparam != SIZE_MINIMIZED)
+        case WM_SIZE:
         {
-            gui::destroy_render_target(gui);
-            gui->swap_chain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
-            gui::create_render_target(gui);
+            gui::DearGUI* gui = (gui::DearGUI*)(GetWindowLongPtr(handle, GWLP_USERDATA));
+            if (gui && gui->device && wparam != SIZE_MINIMIZED)
+            {
+                gui::destroy_render_target(gui);
+                gui->swap_chain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+                gui::create_render_target(gui);
+            }
+
+            return 0;
         }
 
-        return 0;
-    }
-
-    case WM_DESTROY:
-    {
-        PostQuitMessage(0);
-        return 0;
-    }
+        case WM_DESTROY:
+        {
+            PostQuitMessage(0);
+            return 0;
+        }
     }
 
     return DefWindowProc(handle, message, wparam, lparam);
@@ -240,8 +240,6 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
 
         gui::render(&gui, clear_color);
     }
-
-
 
 
     net::stop(&network);
