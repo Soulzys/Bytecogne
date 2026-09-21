@@ -31,6 +31,7 @@ typedef int32    bool32;
 typedef uint32   flag_type;
 typedef uint8    enum_type;
 constexpr uint8 FLAGS_COUNT = 32;
+constexpr uint8 API_PARAM_BSIZE = 128;
 
 #include <winsock2.h>
 #include <ws2tcpip.h>

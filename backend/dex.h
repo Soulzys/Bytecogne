@@ -93,4 +93,4 @@ std::string stringify(PaidOrder::Status data);
 std::string stringify(int32 data);
 std::string stringify(uint32 flags, const std::string flags_name[FLAGS_COUNT], const std::string& prefix = "");
 
-void dex_paid_order_popup(PaidOrder::Properties& properties);
+void dex_paid_order_popup(PaidOrder::Properties& properties, char chain_id[API_PARAM_BSIZE], char token_address[API_PARAM_BSIZE]);

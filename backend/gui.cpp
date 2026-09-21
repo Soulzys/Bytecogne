@@ -179,10 +179,16 @@ void gui::draw_main_window(AppState* state)
     }
 
     //draw_dex_token_pairs_popup();
-    dex_paid_order_popup(state->dex->paid_order.internal_properties);
+
+    static char chain_id[API_PARAM_BSIZE];
+    static char token_address[API_PARAM_BSIZE];
+
+    dex_paid_order_popup(state->dex->paid_order.internal_properties, chain_id, token_address);
+
 
     if (ImGui::Button("Test"))
     {
+        std::cout << "----------------- chain_id: " << chain_id << "\n" << std::flush;
         std::cout << stringify(state->dex->paid_order) << std::flush;
     }
 

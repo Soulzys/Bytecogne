@@ -2,16 +2,22 @@
 #include "cogne.h"
 #include "utils.h"
 
-void dex_paid_order_popup(PaidOrder::Properties& properties)
+void dex_paid_order_popup(PaidOrder::Properties& properties, char chain_id[API_PARAM_BSIZE], char token_address[API_PARAM_BSIZE])
 {
 	if (ImGui::BeginPopupModal("Dex - Paid Order", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 	{
 		ImGui::Text("Choose the data you want to retrieve");
+		
 		ImGui::Separator();
 
 		ImGui::CheckboxFlags("Type"             , &(unsigned int)properties, (unsigned int)PaidOrder::Properties::TYPE);
 		ImGui::CheckboxFlags("Status"           , &(unsigned int)properties, (unsigned int)PaidOrder::Properties::STATUS);
 		ImGui::CheckboxFlags("Payment timestamp", &(unsigned int)properties, (unsigned int)PaidOrder::Properties::PAYMENT_TIMESTAMP);
+
+		ImGui::Separator();
+
+		ImGui::InputText("Chain ID", chain_id, sizeof(chain_id));
+		ImGui::InputText("Token address", token_address, sizeof(token_address));
 
 		if (ImGui::Button("Done"))
 		{
