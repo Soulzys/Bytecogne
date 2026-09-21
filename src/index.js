@@ -1,10 +1,22 @@
-import { getTokenPairs } from "./dexscreener.js";
+import { get_latest_token_profiles            } from "./dexscreener.js";
+import { get_recently_updated_token_profiles  } from "./dexscreener.js";
+import { get_latest_token_community_takeovers } from "./dexscreener.js";
+import { get_latest_ads                       } from "./dexscreener.js";
+import { get_latest_boosted_tokens            } from "./dexscreener.js";
+import { get_tokens_most_active_boosts        } from "./dexscreener.js";
+import { get_paid_order                       } from "./dexscreener.js";
+import { get_pairs                            } from "./dexscreener.js";
+import { search_for_pairs                     } from "./dexscreener.js";
+import { get_token_pools                      } from "./dexscreener.js";
+import { get_token_pairs                      } from "./dexscreener.js";
+
 import { DATA } from "./utils.js";
 
-const chain_name = "solana";
+const chain_id = "solana";
 const token_address = "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN";
 
-const pairs = await getTokenPairs(chain_name, token_address);
+const pairs = await get_token_pairs(chain_id, token_address);
+const order = await get_paid_order(chain_id, token_address);
 
 const first_pair = pairs[0];
 
@@ -22,6 +34,11 @@ const test_object = {
 //const real_test_object = {_c: DATA.DEX.TOKEN_PAIRS, ...test_object};
 const real_test_object = {_c: DATA.DEX.TOKEN_PAIRS, ...test_object};
 console.log("test_object: ", real_test_object);
+
+
+
+
+console.log("--------------- My paid order: ", order);
 
 
 import net from "node:net"

@@ -2,6 +2,7 @@ export const DATA = Object.freeze
 ({
     DEX:
     {
-        TOKEN_PAIRS: 0,
+        PAID_ORDER: 0,
+        TOKEN_PAIRS: 1,
     },
 });
