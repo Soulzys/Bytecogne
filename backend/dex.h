@@ -1,5 +1,12 @@
 #pragma once
 
+
+enum class EndPoint : enum_type
+{
+	PaidOrder, 
+	TokenPair,
+};
+
 struct Token
 {
 	const char* address;
@@ -69,9 +76,14 @@ struct PaidOrder
 	};
 
 
+	// Outputs
 	Type   type;
 	Status status;
 	int32  payment_timestamp;
+
+	// Inputs
+	char chain_id      [API_PARAM_BSIZE];
+	char token_address [API_PARAM_BSIZE];
 
 	Properties internal_properties;
 };
@@ -88,9 +100,12 @@ struct Dex
 };
 
 std::string stringify(const PaidOrder& data);
-std::string stringify(PaidOrder::Type data);
-std::string stringify(PaidOrder::Status data);
+std::string stringify(EndPoint e);
+std::string stringify(PaidOrder::Type e);
+std::string stringify(PaidOrder::Status e);
 std::string stringify(int32 data);
 std::string stringify(uint32 flags, const std::string flags_name[FLAGS_COUNT], const std::string& prefix = "");
 
-void dex_paid_order_popup(PaidOrder::Properties& properties, char chain_id[API_PARAM_BSIZE], char token_address[API_PARAM_BSIZE]);
+std::string format_to_node(const PaidOrder& data);
+
+void dex_paid_order_popup(PaidOrder& data);
