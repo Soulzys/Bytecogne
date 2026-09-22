@@ -79,18 +79,25 @@ socket.on('data', (data) => {
     buffer += data.toString();
     let newline_index = -1;
 
+    var message = "";
+
     while ((newline_index = buffer.indexOf('\n')) !== -1)
     {
-        const message = buffer.slice(0, newline_index);
+        const message_chunk = buffer.slice(0, newline_index);
         buffer = buffer.slice(newline_index + 1);
-        console.log("C++ requested: ", message);
-        console.log("newline_index: ", newline_index);
+        message += message_chunk + "\n";
+
+        //console.log("C++ requested: ", message);
+        //console.log("newline_index: ", newline_index);
 
         //if (message == "TOKEN_PAIRS")
         //{}
 
+
     }
-    run_app();
+
+    console.log("C++ requested: ", message);
+    //run_app();
 });
 
 
