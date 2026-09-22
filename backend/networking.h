@@ -46,8 +46,8 @@ namespace net
     bool message_push (NetworkMessageBuffer* buffer, const char* data, uint32 size);
     bool message_pop  (NetworkMessageBuffer* buffer, NetworkMessage* out_message);
     bool init         (Network* network, uint16 port);
-    void start        (Network* network);
+    void start        (Network* network, const std::string& request);
     void stop         (Network* network);
-    void thread       (Network* network);
+    void thread       (Network* network, const std::string& request);
     void process      (Network* network);
 }

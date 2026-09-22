@@ -145,31 +145,7 @@ void gui::draw_main_window(AppState* state)
     //RightPanel
     //
     ImGui::BeginChild("RightPanel", ImVec2(0, 0), true);
-    ImGui::Text("Right Panel");
-    const char* str_disconnected = "Connect";
-    const char* str_connnected = "Disconnect";
-    if (ImGui::Button(connected ? str_connnected : str_disconnected))
-    {
-        if (connected)
-        {
-            net::stop(state->network);
-            wnd::process_stop_node(state->window);
-        }
-        else
-        {            
-            if (!net::init(state->network, 5000))
-            {
-                ::WSACleanup();
-                //return;
-            }
-
-            net::start(state->network);
-            if (!wnd::process_start_node(state->window))
-            {
-                std::cerr << "Could not start node process !\n";
-            }
-        }
-    }
+    ImGui::Text("Right Panel");    
 
     if (ImGui::Button("Paid Order"))
     {
@@ -183,6 +159,28 @@ void gui::draw_main_window(AppState* state)
     {
         std::cout << format_to_node(state->dex->paid_order) << "\n" << std::flush;
         std::cout << stringify(state->dex->paid_order) << std::flush;
+    }
+
+    if (ImGui::Button(connected ? "Disconnect" : "Connect"))
+    {
+        if (connected)
+        {
+            net::stop(state->network);
+            wnd::process_stop_node(state->window);
+        }
+        else
+        {
+            if (!net::init(state->network, 5000))
+            {
+                ::WSACleanup();
+            }
+
+            net::start(state->network, format_to_node(state->dex->paid_order));
+            if (!wnd::process_start_node(state->window))
+            {
+                std::cerr << "Could not start node process !\n";
+            }
+        }
     }
 
     ImGui::EndChild();

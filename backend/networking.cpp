@@ -95,12 +95,12 @@ bool net::message_pop(NetworkMessageBuffer* buffer, NetworkMessage* out_message)
     return true;
 }
 
-void net::start(Network* network)
+void net::start(Network* network, const std::string& request)
 {
     network->running = true;
     std::cout << "Waiting for JS application...\n" << std::flush;
 
-    network->thread = std::thread(thread, network);
+    network->thread = std::thread(thread, network, request);
 }
 
 void net::stop(Network* network)
@@ -129,7 +129,7 @@ void net::stop(Network* network)
     }
 }
 
-void net::thread(Network* network)
+void net::thread(Network* network, const std::string& request)
 {
     SOCKET client = ::accept(network->listen_socket, nullptr, nullptr);
     if (client == INVALID_SOCKET)
@@ -147,8 +147,7 @@ void net::thread(Network* network)
 
     std::cout << "JS application connected !\n" << std::flush;
 
-    const char* request = "TOKEN_PAIRS\n";
-    int bytes_sent = ::send(network->client_socket, request, (int)strlen(request), 0);
+    int bytes_sent = ::send(network->client_socket, request.c_str(), (int)request.size(), 0);
     if (bytes_sent == SOCKET_ERROR)
     {
         std::cerr << "send() failed: " << WSAGetLastError() << "\n" << std::flush;
