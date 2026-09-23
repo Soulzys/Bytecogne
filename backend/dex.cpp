@@ -31,8 +31,8 @@ void dex_paid_order_popup(PaidOrder& data)
 std::string stringify(EndPoint e)
 {
 	std::string fields[2];
-	fields[0] = "PaidOrder";
-	fields[1] = "TokenPair";
+	fields[0] = "paid_order";
+	fields[1] = "token_pair";
 
 	return fields[(enum_type)e];
 }
@@ -123,14 +123,34 @@ std::string format_to_node(const PaidOrder& data)
 {
 	using P = PaidOrder::Properties;
 
-	std::string result = "dt:" + stringify(EndPoint::PaidOrder) + "\n";
+	std::string result = "{\"dt\":\"";
+	result += stringify(EndPoint::PaidOrder);
+	result += "\"";
+	result += FIELD_DELIM_CHAR;
 
-	result += "chain_id:"      + (std::string)data.chain_id      + "\n";
-	result += "token_address:" + (std::string)data.token_address + "\n";
+	result += "\"chain_id\":\"";
+	result += (std::string)data.chain_id;
+	result += "\""; 
+	result += FIELD_DELIM_CHAR;
 
-	result += (has_flag<P>(data.internal_properties, P::TYPE             )) ? "1\n" : "0\n";
-	result += (has_flag<P>(data.internal_properties, P::STATUS           )) ? "1\n" : "0\n";
-	result += (has_flag<P>(data.internal_properties, P::PAYMENT_TIMESTAMP)) ? "1\n" : "0\n";
+	result += "\"token_address\":\"";
+	result += (std::string)data.token_address;
+	result += "\""; 
+	result += FIELD_DELIM_CHAR;
+
+	result += "\"type\":";
+	result += (has_flag<P>(data.internal_properties, P::TYPE             )) ? HAS_P : HASNT_P;
+	result += FIELD_DELIM_CHAR;
+
+	result += "\"status\":";
+	result += (has_flag<P>(data.internal_properties, P::STATUS           )) ? HAS_P : HASNT_P;
+	result += FIELD_DELIM_CHAR;
+
+	result += "\"payment_timestamp\":";
+	result += (has_flag<P>(data.internal_properties, P::PAYMENT_TIMESTAMP)) ? HAS_P : HASNT_P;
+
+	result += "}";
+	result += END_DELIM_CHAR;
 
 	return result;
 }

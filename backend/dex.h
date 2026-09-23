@@ -1,6 +1,13 @@
 #pragma once
 
 
+
+constexpr char FIELD_DELIM_CHAR = ',';
+constexpr char END_DELIM_CHAR   = '\n';
+constexpr char HAS_P   = '1';
+constexpr char HASNT_P = '0';
+
+
 enum class EndPoint : enum_type
 {
 	PaidOrder, 
