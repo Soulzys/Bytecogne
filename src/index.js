@@ -96,7 +96,16 @@ socket.on('data', (data) => {
 
     }
 
-    console.log("C++ requested: ", message);
+    try
+    {
+        const obj = JSON.parse(message);
+        console.log("Received: ", obj);
+    }
+    catch (err)
+    {
+        console.log("Invalid JSON: ", message, err);
+    }
+    
     //run_app();
 });
 
