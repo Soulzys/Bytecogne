@@ -74,38 +74,40 @@ socket.on("error", err =>
 });
 
 
+let test_paid_order;
+
 let buffer = '';
-socket.on('data', (data) => {
+// Data can be called several times to send one complete
+socket.on('data', async (data) => {
     buffer += data.toString();
     let newline_index = -1;
 
-    var message = "";
-
     while ((newline_index = buffer.indexOf('\n')) !== -1)
     {
-        const message_chunk = buffer.slice(0, newline_index);
+        const message = buffer.slice(0, newline_index);
         buffer = buffer.slice(newline_index + 1);
-        message += message_chunk + "\n";
-
-        //console.log("C++ requested: ", message);
-        //console.log("newline_index: ", newline_index);
-
-        //if (message == "TOKEN_PAIRS")
-        //{}
-
-
-    }
-
-    try
-    {
-        const obj = JSON.parse(message);
-        console.log("Received: ", obj);
-    }
-    catch (err)
-    {
-        console.log("Invalid JSON: ", message, err);
-    }
     
+        try
+        {
+            const obj = JSON.parse(message);
+            console.log("Received: ", obj);
+
+            // >TODO: 
+            if (obj["dt"] == "paid_order")
+            {
+                console.log("COUCOU !!!");
+                test_paid_order = await get_paid_order(chain_id, token_address);
+                socket.write(JSON.stringify(test_paid_order) + "\n");
+            }
+        }
+        catch (err)
+        {
+            console.log("Invalid JSON: ", message, err);
+            // >TODO: Return something to C++
+            return;
+        }
+    }
+
     //run_app();
 });
 
