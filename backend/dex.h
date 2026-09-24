@@ -115,4 +115,5 @@ std::string stringify(uint32 flags, const std::string flags_name[FLAGS_COUNT], c
 
 std::string format_to_node(const PaidOrder& data);
 
+
 void dex_paid_order_popup(PaidOrder& data);

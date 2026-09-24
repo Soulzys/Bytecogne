@@ -3,36 +3,36 @@
 #define INVALID_UI32 UINT32_MAX
 #define INVALID_UI8 UINT8_MAX
 
-uint32
-utils::dex::retrieve_message_code(const char* msg, uint32 size)
-{
-	uint32 start = find_char(msg, size, ':'); // This should be at a constant position specified by the format, so no need to look for it (in theory)
-	uint32 end   = find_char(msg, size, ','); 
-
-	if (start == INVALID_UI32) return false;
-	if (end   == INVALID_UI32) return false;
-
-	return str_to_ui32(msg, start + 1, end);
-}
-
-utils::dex::TokenPairs 
-utils::dex::parse_token_pairs(const char* msg, uint32 size)
-{
-	TokenPairs result = {};
-
-	strv::StringView strv = strv::create(msg);
-	while (strv.size > 0)
-	{
-		strv::StringView vfield = strv::split(&strv, ',');
-		//printf(SV_FMT"\n", ((vfield).(int)(size), (vfield).data));
-		//printf(SV_FMT"\n", (int)vfield.size, vfield.data);
-		printf(SV_FMT"\n", SV_ARG(vfield));
-		//std::count << vfield.data << "\n" << std::flush;
-	}
-
-
-	return result;
-}
+//uint32
+//utils::dex::retrieve_message_code(const char* msg, uint32 size)
+//{
+//	uint32 start = find_char(msg, size, ':'); // This should be at a constant position specified by the format, so no need to look for it (in theory)
+//	uint32 end   = find_char(msg, size, ','); 
+//
+//	if (start == INVALID_UI32) return false;
+//	if (end   == INVALID_UI32) return false;
+//
+//	return str_to_ui32(msg, start + 1, end);
+//}
+//
+//utils::dex::TokenPairs 
+//utils::dex::parse_token_pairs(const char* msg, uint32 size)
+//{
+//	TokenPairs result = {};
+//
+//	strv::StringView strv = strv::create(msg);
+//	while (strv.size > 0)
+//	{
+//		strv::StringView vfield = strv::split(&strv, ',');
+//		//printf(SV_FMT"\n", ((vfield).(int)(size), (vfield).data));
+//		//printf(SV_FMT"\n", (int)vfield.size, vfield.data);
+//		printf(SV_FMT"\n", SV_ARG(vfield));
+//		//std::count << vfield.data << "\n" << std::flush;
+//	}
+//
+//
+//	return result;
+//}
 
 
 uint32 utils::str_to_ui32(const char* str, uint32 start, uint32 end)

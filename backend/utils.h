@@ -8,21 +8,21 @@ namespace utils
 {
 	namespace dex
 	{
-		enum class EndPoint : uint8
-		{
-			TOKEN_PAIRS = 0,
-			COUNT
-		};
-
-		struct TokenPairs
-		{
-			std::string chain_id;
-			std::string url;
-			int         market_cap;
-		};
-
-		TokenPairs parse_token_pairs(const char* msg, uint32 size);
-		uint32     retrieve_message_code(const char* msg, uint32 size);// , void* outData, EndPoint& outDataType);
+		//enum class EndPoint : uint8
+		//{
+		//	TOKEN_PAIRS = 0,
+		//	COUNT
+		//};
+		//
+		//struct TokenPairs
+		//{
+		//	std::string chain_id;
+		//	std::string url;
+		//	int         market_cap;
+		//};
+		//
+		//TokenPairs parse_token_pairs(const char* msg, uint32 size);
+		//uint32     retrieve_message_code(const char* msg, uint32 size);// , void* outData, EndPoint& outDataType);
 	}
 
 

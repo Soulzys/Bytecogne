@@ -95,9 +95,34 @@ socket.on('data', async (data) => {
             // >TODO: 
             if (obj["dt"] == "paid_order")
             {
-                console.log("COUCOU !!!");
+                console.log("Fetching PaidOrder from DEX Screener...");
                 test_paid_order = await get_paid_order(chain_id, token_address);
-                socket.write(JSON.stringify(test_paid_order) + "\n");
+
+                console.log("Received PaidOrder from DEX Screener...");
+                console.log(test_paid_order);
+
+                console.log("Preparing PaidOrder command for backend...");
+
+                const response_obj = {};
+                response_obj.obj_type = "paid_order";
+                if (obj["type"] == 1)
+                {
+                    // Can also get properties via ["<property_name>"], e.g.
+                    // test_paid_order.orders[0]["type"];
+                    response_obj.type = test_paid_order.orders[0].type;
+                }
+                if (obj["status"] == 1)
+                {
+                    response_obj.type = test_paid_order.orders[0].status;
+                }
+                if (obj["payment_timestamp"] == 1)
+                {
+                    response_obj.payment_timestamp = test_paid_order.orders[0].paymentTimestamp;
+                }
+                
+                console.log("Sending to backend...");
+                console.log(response_obj);
+                socket.write(JSON.stringify(response_obj) + "\n");
             }
         }
         catch (err)
