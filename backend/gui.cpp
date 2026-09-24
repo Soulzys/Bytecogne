@@ -142,9 +142,10 @@ void gui::draw_main_window(AppState* state)
     ImGui::Text("Left Panel");
     ImGui::EndChild();
     ImGui::SameLine();
+
     //RightPanel
     //
-    ImGui::BeginChild("RightPanel", ImVec2(0, 0), true);
+    ImGui::BeginChild("RightPanel", ImVec2(500, 0), true);
     ImGui::Text("Right Panel");    
 
     if (ImGui::Button("Paid Order"))
@@ -184,7 +185,21 @@ void gui::draw_main_window(AppState* state)
     }
 
     ImGui::EndChild();
+    ImGui::SameLine();
 
+    // StreamPanel
+    //
+    ImGui::BeginChild("StreamPanel", ImVec2(ImGui::GetContentRegionAvail()), true);
+    ImGui::Text("Stream Panel");
+
+    ImGui::BeginChild("TChild", ImVec2(ImGui::GetContentRegionAvail().x * 0.5f, 200));
+    for (int i = 0; i < 1000; i++)
+    {
+        ImGui::Text("Gimme %04d", i);
+    }
+    ImGui::EndChild();
+
+    ImGui::EndChild();
 
     ImGui::End();
 }

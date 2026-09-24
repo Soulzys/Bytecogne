@@ -77,7 +77,7 @@ void wnd::create_window(HINSTANCE hinstance, Window* out_wnd, gui::DearGUI* gui)
         nullptr,
         hinstance,
         gui
-    );
+    );    
 
     out_wnd->handle = handle;
     out_wnd->name = wc.lpszClassName;
@@ -103,7 +103,7 @@ bool wnd::process_start_node(wnd::Window* window)
         nullptr,
         &si,
         &pi
-    );
+    );    
 
     //window->start_node_process = pi.hProcess;
 
@@ -156,7 +156,7 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, LPSTR, int)
         return 1;
     }
 
-    ShowWindow(wnd.handle, SW_SHOWDEFAULT);
+    ShowWindow(wnd.handle, SW_MAXIMIZE);
     UpdateWindow(wnd.handle);
 
 
